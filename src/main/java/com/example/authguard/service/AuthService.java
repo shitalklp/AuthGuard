@@ -1,5 +1,5 @@
 package com.example.authguard.service;
-
+import com.example.authguard.dto.LoginRequest;
 import com.example.authguard.dto.RegisterRequest;
 import com.example.authguard.entity.OtpVerification;
 import com.example.authguard.entity.User;
@@ -18,6 +18,7 @@ public class AuthService {
     private final OtpService otpService;
     private final EmailService emailService;
     private final OtpRepository otpRepository;
+
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        OtpService otpService,
@@ -52,7 +53,6 @@ public class AuthService {
         emailService.sendOtpEmail(request.getEmail(), otp);
         return "Registration successful. OTP generated.";
     }
-
 
 
     public String verifyOtp(String email, String otp) {
@@ -90,26 +90,45 @@ public class AuthService {
     }
 
 
-    public  String resendOtp(String email)
-    {
+    public String resendOtp(String email) {
         User user = userRepository.findByEmail(email).orElse(null);
 
-        if(user== null)
-        {
-            return"user not found";
+        if (user == null) {
+            return "user not found";
 
         }
-        if(user.isVerified())
-        {
+        if (user.isVerified()) {
             return "Email is  already veriffiied ";
 
         }
         String otp = otpService.generateOtp(email);
         emailService.sendOtpEmail(email, otp);
-        return  "New otp sent sucessfully";
+        return "New otp sent sucessfully";
 
 
     }
 
+    public String login(LoginRequest request) {
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElse(null);
+
+        if (user == null) {
+            return "Invalid email or password";
+        }
+
+        if (!user.isVerified()) {
+            return "Please verify your email first";
+        }
+
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                user.getPassword())) {
+
+            return "Invalid email or password";
+        }
+
+        return "Login successful";
+    }
 
 }

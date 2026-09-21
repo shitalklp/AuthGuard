@@ -1,5 +1,6 @@
 package com.example.authguard.controller;
 
+import com.example.authguard.dto.LoginRequest;
 import com.example.authguard.dto.RegisterRequest;
 import com.example.authguard.dto.VerifyOtpRequest;
 import com.example.authguard.service.AuthService;
@@ -47,5 +48,11 @@ public class AuthController {
     }
 
 
+@PostMapping("/login")
+    public  ResponseEntity<String>login(@Valid @RequestBody LoginRequest request)
+        {
+            String response = authService.login(request);
+            return ResponseEntity.ok(response);
+        }
 
 }
